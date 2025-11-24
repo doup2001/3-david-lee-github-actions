@@ -79,15 +79,15 @@ jobs:
       - name: EC2 도커 설치하기 (없다면 생성)
         if : steps.check-docker.outputs.docker_exists == 'false'
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             sudo apt-get update
             sudo apt-get install -y \
-              ca-certificates \ 
+              ca-certificates \
               curl \
               gnupg \
               lsb-release
             sudo mkdir -p /etc/apt/keyrings
-            curl -fsSl https://download.docker.com/linux/ubuntu/gpg \
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
               | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
             echo \
               "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
