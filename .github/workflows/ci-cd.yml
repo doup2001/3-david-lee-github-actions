@@ -142,6 +142,6 @@ jobs:
             **메시지**: ${{ steps.commit-info.outputs.message }}
             
             [커밋 보기](${{ github.event.head_commit.url }})
-            color: 0x00ff00
-            username: GitHub Bot
-            avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          color: 0x00ff00
+          username: GitHub Bot
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
