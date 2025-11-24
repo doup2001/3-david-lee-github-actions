@@ -67,13 +67,13 @@ jobs:
       - name: 도커 설치 여부
         id : check-docker
         run: |
-          DOCKER_EXISTS=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.SERVER_USER}}@${{secrets.SEVER_HOST}} 'command -v docker >/dev/null && echo "true" || echo "false"')
+          DOCKER_EXISTS=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'command -v docker >/dev/null && echo "true" || echo "false"')
           echo "docker_exists=$DOCKER_EXISTS" >> $GITHUB_OUTPUT
 
       - name: 노드 설치 여부
         id : check-nodejs
         run: |
-          NODE_EXISTS=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} 'command -v node >/dev/null $$ echo "true" || echo "false"')
+          NODE_EXISTS=$(ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'command -v node >/dev/null && echo "true" || echo "false"')
           echo "node_exists=$NODE_EXISTS" >> $GITHUB_OUTPUT
 
       - name: EC2 도커 설치하기 (없다면 생성)
@@ -102,15 +102,15 @@ jobs:
       - name: EC2 노드 설치 (없다면 생성)
         if : steps.check-nodejs.outputs.node_exists == 'false'
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} << 'EOF'
-            curl -fsSL https://deb,nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt-get install -y node.js
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
           EOF
 
       - name: 도커 컴포즈를 통해서 배포
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.SERVER_USER}}@${{secrets.SERVER_HOST}} <<'EOF'
-            cd /home/${{secrets.SERVER_USER}}//backend
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /home/${{ secrets.SERVER_USER }}/backend
             docker compose pull
             docker compose up -d
           EOF
