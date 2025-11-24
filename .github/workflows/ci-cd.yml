@@ -18,10 +18,13 @@ jobs:
         node-version : [19.x, 20.x, 22.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: 체크아웃 레포지토리
+        uses: actions/checkout@v2
+
+      - name: Node 설정
       - uses: actions/setup-node@v2
         with:
-          node-version: ${{node-version}}
+          node-version: ${{matrix.node-version}}
 
       - name: 의존성 설치
         run: npm install
