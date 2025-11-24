@@ -1,0 +1,38 @@
+# 이름 설정
+name : Node.js CI
+
+# 어떤 트리거로 실행할지
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+# 실행할 jobs 영역
+jobs:
+  build :
+    runs-on: ubuntu-latest  # 최신 ubuntu로 실행하게끔
+
+    # 전략 정의
+    strategy:
+      matrix:
+        node-version : [19.x, 20.x, 22.x]
+
+    # 각 단게에서 실행할 내용 정의
+    steps:
+      - name: 체크아웃 레포지토리
+        uses: actions/checkout@v2
+
+      - name: Node 설정
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{matrix.node-version}}
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: 테스트 실행
+        run: npm test
