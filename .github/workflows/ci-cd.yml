@@ -6,9 +6,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   test:
@@ -114,3 +111,37 @@ jobs:
             docker compose pull
             docker compose up -d
           EOF
+
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v2
+
+      - name: 최신 커밋 추출하기
+        id: commit-info
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:'%s')
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_HASH=$(git log -1 --pretty=format:'%h')
+
+          echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "author=$COMMIT_AUTHOR" >> $GITHUB_OUTPUT
+          echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+
+      - name: 디스코드 알림 전송하기
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{secrets.DISCORD_WEBHOOK_URL}}
+          title: "main 브랜치 push"
+          description: |
+            **저장소**: ${{ github.repository }}
+            **브랜치**: `${{ github.ref_name }}`
+            **커밋**: `${{ steps.commit-info.outputs.hash }}`
+            **작성자**: ${{ steps.commit-info.outputs.author }}
+            **메시지**: ${{ steps.commit-info.outputs.message }}
+            
+            [커밋 보기](${{ github.event.head_commit.url }})
+            color: 0x00ff00
+            username: GitHub Bot
+            avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
