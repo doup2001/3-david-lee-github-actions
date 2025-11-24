@@ -1,0 +1,29 @@
+{
+  "name": "github-actions",
+  "version": "1.0.0",
+  "description": "KTB 11주차 과제 : 깃허브 액션 실습",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doup2001/3-david-lee-github-actions.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/doup2001/3-david-lee-github-actions/issues"
+  },
+  "homepage": "https://github.com/doup2001/3-david-lee-github-actions#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
+  }
+}
