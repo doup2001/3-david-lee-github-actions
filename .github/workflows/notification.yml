@@ -1,0 +1,91 @@
+name: Advanced Branch-Based Notifications
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  smart-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine Notification Strategy
+        id: strategy
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          EVENT="${{ github.event_name }}"
+
+          case "$BRANCH" in
+            "main"|"master")
+              echo "channel=production" >> $GITHUB_OUTPUT
+              echo "color=0xff6b35" >> $GITHUB_OUTPUT
+              echo "priority=high" >> $GITHUB_OUTPUT
+              ;;
+            "develop"|"dev")
+              echo "channel=development" >> $GITHUB_OUTPUT
+              echo "color=0x4287f5" >> $GITHUB_OUTPUT
+              echo "priority=medium" >> $GITHUB_OUTPUT
+              ;;
+            "feat/"*)
+              echo "channel=features" >> $GITHUB_OUTPUT
+              echo "color=0x36c759" >> $GITHUB_OUTPUT
+              echo "priority=low" >> $GITHUB_OUTPUT
+              ;;
+            "hotfix/"*)
+              echo "channel=urgent" >> $GITHUB_OUTPUT
+              echo "color=0xff0000" >> $GITHUB_OUTPUT
+              echo "priority=critical" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "channel=general" >> $GITHUB_OUTPUT
+              echo "color=0x808080" >> $GITHUB_OUTPUT
+              echo "priority=low" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Production Deployment Alert
+        if: steps.strategy.outputs.channel == 'production'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "🚀 프로덕션 배포"
+          description: |
+            **⚠️ 중요**: 프로덕션 환경에 새로운 변경사항이 배포되었습니다.
+
+            **배포 정보**:
+            - 커밋: `${{ github.sha }}`
+            - 배포자: ${{ github.actor }}
+            - 시간: ${{ github.event.head_commit.timestamp }}
+
+          color: ${{ steps.strategy.outputs.color }}
+          username: Production Bot
+
+      - name: Dev Deployment Alert
+        if: steps.strategy.outputs.channel == 'development'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "✅ 개발서버 배포"
+          description: |
+            **✅ 공지**: 개발 환경에 새로운 변경사항이 배포되었습니다.
+
+            **배포 정보**:
+            - 커밋: `${{ github.sha }}`
+            - 배포자: ${{ github.actor }}
+            - 시간: ${{ github.event.head_commit.timestamp }}
+
+          color: ${{ steps.strategy.outputs.color }}
+          username: Dev Bot
+
+      - name: Hotfix Critical Alert
+        if: steps.strategy.outputs.priority == 'critical'
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          content: |
+            @everyone 🚨 **긴급 핫픽스 배포**
+
+            핫픽스가 적용되었습니다. 모든 팀원은 관련 시스템을 확인해주세요.
+            **브랜치**: ${{ github.ref_name }}
+            **커밋**: ${{ github.sha }}
